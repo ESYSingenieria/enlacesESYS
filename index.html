@@ -185,31 +185,33 @@
     }
 
 
-    @media (max-width: 600px) {
-  /* Ajusta el contenedor para ocupar mayor ancho en móvil */
+@media (max-width: 600px) {
+  /* Ajusta el contenedor general si es necesario */
   .container {
     width: 90%;
-    padding: 20px;
     margin: 20px auto;
+    padding: 20px;
   }
-  /* Reduce el tamaño del logo */
+  /* Mantiene el logo en buen tamaño */
   .profile-img {
     width: 150px;
     margin-bottom: 10px;
   }
-  /* Ajusta los botones azules para que se vean bien en móvil */
+  /* Conserva los botones azules con ajustes si se requieren */
   .btn {
     padding: 10px;
     font-size: 16px;
-    margin: 10px 0;
+    margin: 15px 0; /* Puedes ajustar este margen si lo deseas */
   }
-  /* En la fila de acción, si es necesario, se apilan verticalmente */
+  /* Para los botones de acción: se asegura que queden en fila y se hagan más pequeños */
   .action-buttons {
-    flex-direction: column;
-    gap: 15px;
+    flex-direction: row; /* Mantiene la fila */
+    gap: 10px;           /* Menor espacio entre ellos */
   }
   .action-btn {
-    width: 100%;
+    padding: 8px;        /* Menor padding */
+    font-size: 12px;     /* Fuente más pequeña */
+    flex: 1;             /* Se reparte el espacio equitativamente */
   }
 }
 
