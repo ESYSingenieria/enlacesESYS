@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mi Página de Enlaces</title>
+  <style>
+    /* -------- GENERAL LAYOUT -------- */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 400px;
+      background-color: #fff;
+      margin: 40px auto;      /* Centra el contenedor y deja espacio superior */
+      padding: 30px;          /* Espacio interno */
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    /* -------- LOGO / IMAGEN -------- */
+    .profile-img {
+      width: 250px;
+      border-radius: 50%;
+      margin-bottom: 10px; /* Menos espacio debajo del logo */
+    }
+
+    /* -------- BOTONES DE ENLACE (AZULES) -------- */
+    .btn {
+      display: block;
+      width: 100%;
+      margin: 0 auto;        /* Centrar el botón horizontalmente */
+      padding: 12px;
+      text-decoration: none;
+      color: #fff;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+      box-sizing: border-box;
+      background: linear-gradient(45deg, #007BFF, #0056b3);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      background: linear-gradient(45deg, #0056b3, #007BFF);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transform: translateY(-2px);
+    }
+
+    /* -------- CONTENEDOR DE CADA ENLACE -------- */
+    .link-item {
+      position: relative;
+      margin: 0; /* Sin margen general; controlaremos la separación manualmente */
+    }
+    /* Más espacio entre enlaces, pero no entre el logo y el primer botón */
+    .link-item + .link-item {
+      margin-top: 30px; /* Separa cada botón azul del anterior */
+    }
+    /* Efectos visuales al arrastrar */
+    .link-item.dragging {
+      opacity: 0.5;
+      border: 2px dashed #007BFF;
+    }
+    .link-item.over {
+      border: 2px dashed #007BFF;
+    }
+
+    /* -------- ICONO DE ELIMINAR (X ROJA) -------- */
+    .delete-icon {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 24px;
+      height: 24px;
+      background-color: #dc3545;
+      border-radius: 50%;
+      color: #fff;
+      font-weight: bold;
+      font-size: 14px;
+      text-align: center;
+      line-height: 24px;
+      cursor: pointer;
+      display: none; /* Aparece en modo eliminar */
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      transition: transform 0.2s;
+    }
+    .delete-icon:hover {
+      transform: scale(1.1);
+    }
+    .delete-mode .delete-icon {
+      display: block;
+    }
+
+    /* -------- BOTONES DE ACCIÓN (ABAJO) -------- */
+    /* Contenedor para alinear los 3 botones en fila */
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 25px; /* Más espacio que entre los botones azules */
+      margin-top: 30px; /* Separación respecto a los enlaces azules */
+    }
+    /* Estilo base para los 3 botones de acción */
+    .action-btn {
+      padding: 12px 16px;
+      font-weight: bold;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+    .action-btn:hover {
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transform: translateY(-2px);
+    }
+    /* Botón Agregar (verde) */
+    .add-btn {
+      background: linear-gradient(45deg, #28a745, #218838);
+    }
+    .add-btn:hover {
+      background: linear-gradient(45deg, #218838, #28a745);
+    }
+    /* Botón Reordenar (amarillo) */
+    .reorder-btn {
+      background: linear-gradient(45deg, #FFC107, #FFD700);
+      color: #000; /* Mejor contraste sobre amarillo */
+    }
+    .reorder-btn:hover {
+      background: linear-gradient(45deg, #FFD700, #FFC107);
+    }
+    /* Botón Eliminar (rojo) */
+    .delete-btn {
+      background: linear-gradient(45deg, #dc3545, #c82333);
+    }
+    .delete-btn:hover {
+      background: linear-gradient(45deg, #c82333, #dc3545);
+    }
+
+    /* -------- ESTADO ACTIVO DEL BOTÓN REORDENAR -------- */
+    /* Se aplicará cuando reorderMode sea true */
+    .reorder-btn.active {
+      outline: 3px solid #FFC107; /* Resaltar con borde */
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+
+    /* -------- FORMULARIO -------- */
+    .form-container {
+      display: none;
+      margin-top: 20px;
+      text-align: left;
+    }
+    .form-container input[type="text"],
+    .form-container input[type="url"] {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .form-container button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: linear-gradient(45deg, #007BFF, #0056b3);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      box-sizing: border-box;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+    .form-container button:hover {
+      background: linear-gradient(45deg, #0056b3, #007BFF);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header></header>
+        <a href="https://www.esys.cl" target="_blank" rel="noopener noreferrer">
+        <img src="logo.png" alt="Logo ESYS" class="profile-img">
+        </a>
+    </header>
+    
+    <!-- Contenedor de enlaces -->
+    <div id="links-container">
+      <!-- Los enlaces se cargarán aquí -->
+    </div>
+
+    <!-- Contenedor de botones de acción en fila -->
+    <div class="action-buttons">
+      <button class="action-btn add-btn" onclick="toggleForm()">Agregar</button>
+      <button class="action-btn reorder-btn" onclick="toggleReorderMode()" id="reorder-button">Reordenar</button>
+      <button class="action-btn delete-btn" onclick="toggleDeleteMode()">Eliminar</button>
+    </div>
+    
+    <!-- Formulario para nuevo enlace -->
+    <div class="form-container" id="form-container">
+      <input type="text" id="link-text" placeholder="Texto del botón">
+      <input type="url" id="link-url" placeholder="URL del enlace">
+      <button onclick="addLink()">Guardar Enlace</button>
+    </div>
+  </div>
+
+  <script>
+    // Enlaces por defecto (algunos fijos)
+    let links = JSON.parse(localStorage.getItem('links')) || [
+      {text: "Guarda/Visualiza Información", url: "https://www.dropbox.com/scl/fo/6ojkwxv2at3a3dnjflc7s/AJWJ50n_l0p_k5oFmL_qjak?rlkey=g0j99c2aze9oof6x3um0fkumu&st=ctpyjt6m&dl=0", fixed: true},
+      {text: "Aprende a Usar tu EPP Correctamente", url: "https://esys.cl/cursos-y-capacitaciones/", fixed: true},
+      {text: "Calculadora Rápida de Arco Eléctrico", url: "https://esysingenieria.github.io/Calculadora-de-Arco-Electrico/", fixed: true}
+    ];
+
+    const linksContainer = document.getElementById('links-container');
+
+    // Modo reordenar y modo eliminar
+    let reorderMode = false;
+    let deleteMode = false;
+
+    // Referencia al botón de reordenar, para marcarlo como activo/inactivo
+    const reorderBtn = document.getElementById('reorder-button');
+
+    /* DRAG & DROP HANDLERS */
+    function handleDragStart(e, index) {
+      if (!reorderMode) return;
+      e.dataTransfer.setData("text/plain", index);
+      e.currentTarget.classList.add('dragging');
+    }
+    function handleDragEnd(e) {
+      e.currentTarget.classList.remove('dragging');
+    }
+    function handleDragEnter(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('over');
+    }
+    function handleDragLeave(e) {
+      e.currentTarget.classList.remove('over');
+    }
+    function handleDragOver(e) {
+      e.preventDefault(); // Permitir soltar
+    }
+    function handleDrop(e, toIndex) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('over');
+      const fromIndex = e.dataTransfer.getData("text/plain");
+      if (fromIndex === "" || fromIndex == toIndex) return;
+      // Reordenar array
+      const movedItem = links.splice(fromIndex, 1)[0];
+      links.splice(toIndex, 0, movedItem);
+      localStorage.setItem('links', JSON.stringify(links));
+      renderLinks();
+    }
+
+    /* RENDERIZAR ENLACES */
+    function renderLinks() {
+      linksContainer.innerHTML = '';
+      links.forEach((link, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'link-item';
+        
+        // Arrastre si reorderMode es true
+        itemDiv.draggable = reorderMode;
+        if (reorderMode) {
+          itemDiv.addEventListener('dragstart', (e) => handleDragStart(e, index));
+          itemDiv.addEventListener('dragend', handleDragEnd);
+          itemDiv.addEventListener('dragenter', handleDragEnter);
+          itemDiv.addEventListener('dragleave', handleDragLeave);
+          itemDiv.addEventListener('dragover', handleDragOver);
+          itemDiv.addEventListener('drop', (e) => handleDrop(e, index));
+        }
+
+        // Modo eliminar
+        if (deleteMode) {
+          itemDiv.classList.add('delete-mode');
+        } else {
+          itemDiv.classList.remove('delete-mode');
+        }
+
+        // Botón azul
+        const a = document.createElement('a');
+        a.href = link.url;
+        a.className = 'btn';
+        a.textContent = link.text;
+        a.target = '_blank';
+        itemDiv.appendChild(a);
+
+        // X roja si no es fijo
+        if (!link.fixed) {
+          const deleteIcon = document.createElement('div');
+          deleteIcon.className = 'delete-icon';
+          deleteIcon.innerText = 'X';
+          deleteIcon.addEventListener('click', () => deleteLink(index));
+          itemDiv.appendChild(deleteIcon);
+        }
+
+        linksContainer.appendChild(itemDiv);
+      });
+    }
+
+    /* BOTONES: REORDENAR Y ELIMINAR */
+    function toggleReorderMode() {
+      reorderMode = !reorderMode;
+      // Marcar el botón como activo o no
+      if (reorderMode) {
+        reorderBtn.classList.add('active');
+      } else {
+        reorderBtn.classList.remove('active');
+      }
+      renderLinks();
+    }
+    function toggleDeleteMode() {
+      deleteMode = !deleteMode;
+      renderLinks();
+    }
+
+    /* FORMULARIO */
+    function toggleForm() {
+      const formContainer = document.getElementById('form-container');
+      formContainer.style.display = (formContainer.style.display === 'none' || formContainer.style.display === '')
+        ? 'block'
+        : 'none';
+    }
+    function addLink() {
+      const textInput = document.getElementById('link-text');
+      const urlInput = document.getElementById('link-url');
+      const text = textInput.value.trim();
+      const url = urlInput.value.trim();
+      if (text && url) {
+        // Todos los enlaces que agrega el usuario son fixed: false
+        links.push({ text, url, fixed: false });
+        localStorage.setItem('links', JSON.stringify(links));
+        renderLinks();
+        textInput.value = '';
+        urlInput.value = '';
+        toggleForm();
+      } else {
+        alert("Por favor, ingresa texto y URL.");
+      }
+    }
+
+    /* ELIMINAR ENLACE */
+    function deleteLink(index) {
+      if (!links[index].fixed) {
+        links.splice(index, 1);
+        localStorage.setItem('links', JSON.stringify(links));
+        renderLinks();
+      } else {
+        alert("Este enlace es fijo y no se puede eliminar.");
+      }
+    }
+
+    /* INICIO */
+    renderLinks();
+  </script>
+</body>
+</html>
