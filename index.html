@@ -183,6 +183,36 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       transform: translateY(-2px);
     }
+
+
+    @media (max-width: 600px) {
+  /* Ajusta el contenedor para ocupar mayor ancho en móvil */
+  .container {
+    width: 90%;
+    padding: 20px;
+    margin: 20px auto;
+  }
+  /* Reduce el tamaño del logo */
+  .profile-img {
+    width: 150px;
+    margin-bottom: 10px;
+  }
+  /* Ajusta los botones azules para que se vean bien en móvil */
+  .btn {
+    padding: 10px;
+    font-size: 16px;
+    margin: 10px 0;
+  }
+  /* En la fila de acción, si es necesario, se apilan verticalmente */
+  .action-buttons {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .action-btn {
+    width: 100%;
+  }
+}
+
   </style>
 </head>
 <body>
